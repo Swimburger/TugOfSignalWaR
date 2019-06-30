@@ -20,8 +20,16 @@ namespace TugOfSignalWaR
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            GameState.Instance.StartTime = DateTime.Now;
             while (!stoppingToken.IsCancellationRequested)
             {
+                if (DateTime.Now - GameState.Instance.StartTime > TimeSpan.FromMinutes(1))
+                {
+                    await hubContext.Clients.All.SendAsync("GameOver", GameState.Instance);
+                    await Task.Delay(5000);
+                    GameState.Instance.StartTime = DateTime.Now;
+                }
+
                 await hubContext.Clients.All.SendAsync("GameUpdated", GameState.Instance);
                 await Task.Delay(500);
             }

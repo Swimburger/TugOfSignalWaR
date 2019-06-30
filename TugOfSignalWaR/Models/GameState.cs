@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace SignalRChat.Models
 {
     public class GameState
@@ -11,5 +13,6 @@ namespace SignalRChat.Models
         public int BlueTeamSize { get; set; }
         public int RedTeamSize { get; set; }
         public int FlagPosition { get; set; }
+        public DateTime StartTime { get; set; }
     }
 }

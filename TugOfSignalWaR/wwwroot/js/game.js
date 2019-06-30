@@ -29,8 +29,18 @@ var tugOfSingalWaR = {};
         renderGame(team, gameState);
     }
 
-    function renderGame() {
-
+    function renderGame(team, gameState) {
+        var blueScore = Math.abs(Math.min(gameState.flagPosition, 0)); //blue is negative flagPosition
+        var consoleMessage =
+            " ".repeat(Math.max(100 - blueScore, 0)) +
+            "👌" +
+            "〰".repeat(20) +
+            "🏴" +
+            "〰".repeat(20) +
+            "🤏" +
+            " ".repeat(Math.max(100 + blueScore, 0));
+        console.clear();
+        console.log(consoleMessage);
     }
 
     function joinGame() {
