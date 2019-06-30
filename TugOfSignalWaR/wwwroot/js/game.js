@@ -1,29 +1,52 @@
 ﻿"use strict";
+var tugOfSingalWaR = {};
+(function () {
+    var connection = null;
+    var team = null;
 
-var connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
+    function bootstrapHub(connectedCallback) {
+        connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
+        connection.on("GameUpdated", onGameUpdated);
 
-//Disable send button until connection is established
-document.getElementById("sendButton").disabled = true;
+        connection.start()
+            .then(function () {
+                if (!connectedCallback) return;
+                connectedCallback();
+            })
+            .catch(function (err) {
+                return console.error(err.toString());
+            });
+    }
 
-connection.on("ReceiveMessage", function (user, message) {
-    var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    var encodedMsg = user + " says " + msg;
-    var li = document.createElement("li");
-    li.textContent = encodedMsg;
-    document.getElementById("messagesList").appendChild(li);
-});
+    function onGameJoined(joinGameResponse) {
+        team = joinGameResponse.team;
+        renderGame(team, joinGameResponse.gameState);
+    }
 
-connection.start().then(function () {
-    document.getElementById("sendButton").disabled = false;
-}).catch(function (err) {
-    return console.error(err.toString());
-});
+    function onGameUpdated(gameState) {
+        if (!team) return;
 
-document.getElementById("sendButton").addEventListener("click", function (event) {
-    var user = document.getElementById("userInput").value;
-    var message = document.getElementById("messageInput").value;
-    connection.invoke("JoinGame").catch(function (err) {
-        return console.error(err.toString());
-    });
-    event.preventDefault();
-});
+        renderGame(team, gameState);
+    }
+
+    function renderGame() {
+
+    }
+
+    function joinGame() {
+        connection.invoke("JoinGame")
+            .then(onGameJoined)
+            .catch(function (err) {
+                return console.error(err.toString());
+            });
+    }
+
+    tugOfSingalWaR.pull = function () {
+        connection.invoke("pull")
+            .catch(function (err) {
+                return console.error(err.toString());
+            });
+    }
+
+    bootstrapHub(joinGame);
+})();
